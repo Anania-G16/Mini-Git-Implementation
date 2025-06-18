@@ -95,3 +95,47 @@ void MiniGit::log() const {
         temp = temp->prev;
     }
 }
+
+// Create a new branch pointing to current commit
+void MiniGit::createBranch(const string& branchName) {
+    branches[branchName] = current;
+    cout << "Created branch: " << branchName << endl;
+}
+
+// Switch to another branch (only metadata-level here)
+void MiniGit::checkoutBranch(const string& branchName) {
+
+    current = branches[branchName];
+    currentBranch = branchName;
+    cout << "Switched to branch: " << branchName << endl;
+}
+
+// Merge another branch into current one
+void MiniGit::mergeBranch(const string& sourceBranch) {
+
+    Commit* source = branches[sourceBranch];
+    Commit* target = current;
+    unordered_map<string, string> mergedFiles;
+
+    // Add current commit files
+    for (const auto& blob : target->blobs) {
+        mergedFiles[blob.filename] = blob.hash;
+    }
+    // Add/compare files from source branch
+    for (const auto& blob : source->blobs) {
+        if (mergedFiles.count(blob.filename) && mergedFiles[blob.filename] != blob.hash) {
+            cout << "CONFLICT: both modified " << blob.filename << endl;
+        }
+        mergedFiles[blob.filename] = blob.hash;
+    }
+
+    // Restore merged files to working directory
+    for (const auto& [file, hash] : mergedFiles) {
+        ofstream outFile(file);
+        ifstream inFile(".minigit/objects/" + hash);
+        outFile << inFile.rdbuf();
+    }
+
+    cout << "Merged branch " << sourceBranch << " into " << currentBranch <<endl;
+}
+

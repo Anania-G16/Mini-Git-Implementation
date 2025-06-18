@@ -3,6 +3,8 @@
 #include <sstream>
 #include <iomanip>
 #include <filesystem>
+#include <ctime>
+
 
 namespace fs = filesystem;
 
@@ -82,4 +84,14 @@ void MiniGit::commit(const string& message) {
     branches[currentBranch] = current;
     stagingArea.clear();  // Clear staged files after commit
     cout << "Committed: " << message <<endl;
+}
+
+// Show history of commits
+void MiniGit::log() const {
+    Commit* temp = current;
+    while (temp) {
+        cout << "Commit: " << temp->hash << endl<<"Message: " << temp->message
+                  <<endl<< "Timestamp: " << temp->timestamp << endl<<"---"<<endl;
+        temp = temp->prev;
+    }
 }

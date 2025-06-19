@@ -19,12 +19,37 @@ string simpleHash(const string& content) {
 
 // Constructor sets up initial folders and default branch
 MiniGit::MiniGit() {
+    if (fs::exists(".minigit") && fs::exists(".minigit/objects")) {
+        initialized = true;
+        head = nullptr;
+        current = nullptr;
+        currentBranch = "main";
+        branches[currentBranch] = nullptr;
+    }
+}
+
+void MiniGit::init() {
+    if (fs::exists(".minigit") && fs::exists(".minigit/objects")) {
+        cout << "Repository already initialized."<<endl;
+        initialized = true;
+        return;
+    }
     fs::create_directory(".minigit");
     fs::create_directory(".minigit/objects");
     head = nullptr;
     current = nullptr;
     currentBranch = "main";
     branches[currentBranch] = nullptr;
+    initialized = true;
+    cout << "Initialized empty MiniGit repository in .minigit/"<<endl;
+}
+
+// Get the current timestamp for commits
+string MiniGit::getCurrentTime() {
+    time_t now = time(nullptr);
+    stringstream ss;
+    ss << put_time(localtime(&now), "%Y-%m-%d %H:%M:%S");
+    return ss.str();
 }
 
 // Save a file's contents into the .minigit/objects folder
@@ -40,6 +65,8 @@ void MiniGit::saveBlob(const string& filename) {
 
 // Add file to staging area (to be committed)
 void MiniGit::addFile(const string& filename) {
+    if (!initialized) { cout << "Repository not initialized. Use `init` first."<<endl; return; }
+
     if (!fs::exists(filename)) {
         cout << "The file does not exist."<<endl;
         return;
@@ -48,16 +75,15 @@ void MiniGit::addFile(const string& filename) {
     cout << filename<< "Staged   for commit."<<endl;
 }
 
-// Get the current timestamp for commits
-string MiniGit::getCurrentTime() {
-    time_t now = time(nullptr);
-    stringstream ss;
-    ss << put_time(localtime(&now), "%Y-%m-%d %H:%M:%S");
-    return ss.str();
-}
 
 // Commit all staged files
 void MiniGit::commit(const string& message) {
+    if (!initialized) { cout << "Repository not initialized. Use `init` first."<<endl; return; }
+
+    if (stagingArea.empty()) {
+        cout << "There are no files staged for commit."<<endl;
+        return;
+    }
 
     Commit* newCommit = new Commit;
     newCommit->message = message;
@@ -88,6 +114,8 @@ void MiniGit::commit(const string& message) {
 
 // Show history of commits
 void MiniGit::log() const {
+    if (!initialized) { cout << "Repository not initialized. Use `init` first."<<endl; return; }
+
     Commit* temp = current;
     while (temp) {
         cout << "Commit: " << temp->hash << endl<<"Message: " << temp->message
@@ -104,7 +132,12 @@ void MiniGit::createBranch(const string& branchName) {
 
 // Switch to another branch (only metadata-level here)
 void MiniGit::checkoutBranch(const string& branchName) {
+    if (!initialized) { cout << "Repository not initialized. Use `init` first."<<endl; return; }
 
+    if (branches.find(branchName) == branches.end()) {
+        cout << "branch not found."<<endl;
+        return;
+    }
     current = branches[branchName];
     currentBranch = branchName;
     cout << "Switched to branch: " << branchName << endl;
@@ -112,6 +145,12 @@ void MiniGit::checkoutBranch(const string& branchName) {
 
 // Merge another branch into current one
 void MiniGit::mergeBranch(const string& sourceBranch) {
+    if (!initialized) { cout << "Repository not initialized. Use `init` first."<<endl; return; }
+
+    if (branches.find(sourceBranch) == branches.end()) {
+        cout << "Branch not found."<<endl;
+        return;
+    }
 
     Commit* source = branches[sourceBranch];
     Commit* target = current;

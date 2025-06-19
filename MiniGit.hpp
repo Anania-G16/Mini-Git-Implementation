@@ -26,6 +26,7 @@ struct Commit {
 
 class MiniGit {
 private:
+    bool initialized = false;
     Commit* head;  // First commit
     Commit* current;  // Latest commit in current branch
     vector<string> stagingArea;  // Files staged for commit
@@ -38,6 +39,7 @@ private:
 
 public:
     MiniGit();
+    void init();
     void addFile(const string& filename);  // Add stage file
     void commit(const string& message);  // Commit staged files
     void log() const;  // Show commit history

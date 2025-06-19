@@ -178,3 +178,50 @@ void MiniGit::mergeBranch(const string& sourceBranch) {
     cout << "Merged branch " << sourceBranch << " into " << currentBranch <<endl;
 }
 
+// Find a commit node using its hash
+Commit* MiniGit::findCommitByHash(const string& hash) const {
+    Commit* temp = head;
+    while (temp) {
+        if (temp->hash == hash) return temp;
+        temp = temp->next;
+    }
+    return nullptr;
+}
+
+// Show differences between two commits
+void MiniGit::diff(const string& hash1, const string& hash2) {
+    
+    Commit* c1 = findCommitByHash(hash1);
+    Commit* c2 = findCommitByHash(hash2);
+    
+    for (const Blob& b1 : c1->blobs) {
+        for (const Blob& b2 : c2->blobs) {
+            if (b1.filename == b2.filename) {
+                ifstream f1(".minigit/objects/" + b1.hash);
+                ifstream f2(".minigit/objects/" + b2.hash);
+                if (!f1 || !f2) continue;
+
+                vector<string> lines1, lines2;
+                string line;
+                while (getline(f1, line)) lines1.push_back(line);
+                while (getline(f2, line)) lines2.push_back(line);
+
+                cout <<endl<< "--- Diff for file: " << b1.filename << " ---"<<endl;
+                size_t maxLines = max(lines1.size(), lines2.size());
+                for (size_t i = 0; i < maxLines; ++i) {
+                    string l1 = i < lines1.size() ? lines1[i] : "";
+                    string l2 = i < lines2.size() ? lines2[i] : "";
+                    if (l1 != l2) {
+                        if (l1.empty()) cout << "+ Line " << (i+1) << ": " << l2 << ""<<endl;
+                        else if (l2.empty()) cout << "- Line " << (i+1) << ": " << l1 << ""<<endl;
+                        else {
+                            cout << "- Line " << (i+1) << ": " << l1 << ""<<endl;
+                            cout << "+ Line " << (i+1) << ": " << l2 << ""<<endl;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

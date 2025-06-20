@@ -190,9 +190,18 @@ Commit* MiniGit::findCommitByHash(const string& hash) const {
 
 // Show differences between two commits
 void MiniGit::diff(const string& hash1, const string& hash2) {
-    
+     if (!initialized) {
+        cout << "Repository not initialized. Use `init` first."<<endl;
+        return;
+    }
+
     Commit* c1 = findCommitByHash(hash1);
     Commit* c2 = findCommitByHash(hash2);
+
+     if (!c1 || !c2) {
+        cout << "One or both commit hashes not found."<<endl;
+        return;
+    }
     
     for (const Blob& b1 : c1->blobs) {
         for (const Blob& b2 : c2->blobs) {

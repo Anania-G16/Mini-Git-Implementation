@@ -4,9 +4,9 @@ A mini git version control system implemented using core data structures.
 
 #Features
 
-Simulates commit, log, branch, checkout, merge branch and diff functionalities. 
-Command line interface
-Uses stacks, linked lits and hash tables
+- Simulates commit, log, branch, checkout, merge branch and diff functionalities. 
+- Command line interface.
+- Uses stacks, linked lits and hash tables.
 
 
 #Steps on how to Build and Run the Project on VS code.

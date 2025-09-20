@@ -1,6 +1,15 @@
-# MiniGit-for-DSA-class
+# Mini Git Implementation
 
-Steps on how to Build and Run the Project on VS code.
+A mini git version control system implemented using core data structures.
+
+#Features
+
+Simulates commit, log, branch, checkout, merge branch and diff functionalities. 
+Command line interface
+Uses stacks, linked lits and hash tables
+
+
+#Steps on how to Build and Run the Project on VS code.
 
 1. Install CMake
 
@@ -31,3 +40,9 @@ Navigate to the folder where MiniGitProject.exe was created (usually inside buil
 Run the executable:
 
 command: ./MiniGitProject.exe
+
+#Contributors
+
+- Anania Girma (https://github.com/Anania-G16)
+- Ermias Haimanot (https://github.com/Ermi-haimi)
+- Yeabsira Seyoum (https://github.com/Yeabsra-2397)
